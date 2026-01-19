@@ -2,7 +2,6 @@ import calendar
 import datetime
 import os
 from colorama import Back, init
-
 if os.name=="nt": init(convert=True)
 
 now = datetime.datetime.now()
@@ -36,32 +35,44 @@ def drawCalender():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(cal)
 drawCalender()
+
 def getDate():
-    date = input("enter a day, q)uit e)dit\n")
-    try:
-        date=int(date)
-        return date
-    except:
-        if date=='q':os.system("cls" if os.name =="nt" else "clear");exit();
-        if date=='e':
-            date = getDate();
-            dayline = str(os.system('grep -n '+ str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+str(singleDate(date))+" ~/Documents/calendar.txt | cut -d ':' -f 1"))
-            input(dayline);
-            os.system("start notepad.exe '%userprofile%\\Documents\\calendar.txt'" if os.name =='nt' else "nvim +"+str(dayline)+" ~/Documents/calendar.txt")
-        os.system("cls" if os.name =="nt" else "clear");
-        drawCalender();
-        return getDate()
-    
-    #I know this is super stupid
+    date = input("type a date, start with e to open in editor\n")
+    if date.isdigit() :
+        return int(date)
+    else:
+        if date=="" or date is None:
+            os.system("cls" if os.name =="nt" else "clear");
+            drawCalender();
+            return getDate();
+        if date.find("e")==0: 
+            if os.name!='nt':  
+                if date[1:].isdigit():
+                    #this verifiably doesn't work
+                    dayline = str(os.system('grep -n '+ str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+str(singleDate(date[0:1])+" ~/Documents/calendar.txt | cut -d ':' -f 1")))
+                    os.system("nvim +"+str(dayline)+" ~/Documents/calendar.txt")
+                    return int(date[1:])
+                else:getDate();
+            else:
+                if date[1:].isdigit():
+                    os.system("start notepad.exe '%userprofile%\\Documents\\calendar.txt'")
+                    return int(date[1:])
+                else:getDate();
+        if date.find("q")!=-1:
+            os.system("cls" if os.name =="nt" else "clear");
+            exit();
+        else: return int(getDate());
+
 def singleDate(num):
     if num<10:
         num=str(("{:02d}".format(num)))
         return num
     else:
         return num
+        
 def moveCursor(Intdate):
-        selected[0] = (Intdate+monthStart-1)//7
-        selected[1]=  (Intdate+monthStart-1)%7
+        selected[0] = (Intdate+int(monthStart)-1)//7
+        selected[1]=  (Intdate+int(monthStart)-1)%7
         drawCalender()
 
     
@@ -69,14 +80,13 @@ def moveCursor(Intdate):
 while True:
     date=getDate()
     moveCursor(date)
-    #print((str(now).split("-")[0])+(str(now).split("-")[1])  )
     os.system('grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+' %userprofile%\\Documents\\calendar.txt' if os.name=='nt' else
               'grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+ ' ~/Documents/calendar.txt')
-
-       
+    
+#Get back highlighting for today
 #Add highlighting for days with @ tags
 #Add config/options
 #Add being able to see other months
 #Add todo veiw on the right or below the calender
-#Add proper editing
-#make sure things work on other OSes
+#Add proper editing - i think i did it
+#make sure things work on other OSes - i think i did this too
