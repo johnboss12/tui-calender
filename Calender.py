@@ -3,7 +3,7 @@ import datetime
 import os
 from colorama import Back, init
 
-init(convert=True)
+if os.name=="nt": init(convert=True)
 
 now = datetime.datetime.now()
 month = calendar.monthcalendar(now.year,now.month);
@@ -24,14 +24,14 @@ def drawCalender():
             else: today=""
             if d ==(len(month[w])-1):
                     if month[w][d] == 0:cal+=" |    |\n" ;break
-                    if(month[w][d])<10:cal+=" |  " +today+hovered+str(month[w][d])+Back.BLACK+ " |\n" ;break
-                    cal+=" | "+today+hovered+str(month[w][d])+Back.BLACK + " |\n" ;break        
+                    if(month[w][d])<10:cal+=" |  " +today+hovered+str(month[w][d])+Back.RESET+ " |\n" ;break
+                    cal+=" | "+today+hovered+str(month[w][d])+Back.RESET + " |\n" ;break        
             if month[w][d] == 0 and w==0: cal += " |   "
             else:
                 if month[w][d] <10:
-                    cal+=" |  " +today+hovered+str(month[w][d])+Back.BLACK
+                    cal+=" |  " +today+hovered+str(month[w][d])+Back.RESET
                 else:
-                    cal+=" | "+today+hovered+str(month[w][d])+Back.BLACK
+                    cal+=" | "+today+hovered+str(month[w][d])+Back.RESET
     cal+=" \\__________________________________/"
     os.system('cls' if os.name == 'nt' else 'clear')
     print(cal)
@@ -42,8 +42,14 @@ def getDate():
         date=int(date)
         return date
     except:
-        if date=='q':exit();
-        if date=='e':os.system("start notepad.exe '%userprofile%\\Documents\\calendar.txt'" if os.name =='nt' else "nvim ~/Documents/calender.txt")
+        if date=='q':os.system("cls" if os.name =="nt" else "clear");exit();
+        if date=='e':
+            date = getDate();
+            dayline = str(os.system('grep -n '+ str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+str(singleDate(date))+" ~/Documents/calendar.txt | cut -d ':' -f 1"))
+            input(dayline);
+            os.system("start notepad.exe '%userprofile%\\Documents\\calendar.txt'" if os.name =='nt' else "nvim +"+str(dayline)+" ~/Documents/calendar.txt")
+        os.system("cls" if os.name =="nt" else "clear");
+        drawCalender();
         return getDate()
     
     #I know this is super stupid
@@ -64,7 +70,8 @@ while True:
     date=getDate()
     moveCursor(date)
     #print((str(now).split("-")[0])+(str(now).split("-")[1])  )
-    os.system('grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+' %userprofile%\\Documents\\calendar.txt' if os.name=='nt' else 'grep '+(str(now).split(" ")[0])+ '~/Documents/calendar.txt')
+    os.system('grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+' %userprofile%\\Documents\\calendar.txt' if os.name=='nt' else
+              'grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+ ' ~/Documents/calendar.txt')
 
        
 #Add highlighting for days with @ tags
