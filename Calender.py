@@ -11,6 +11,18 @@ for i in range (len(month[0])):
 hovered = ""
 today= ""
 selected =[0,monthStart]
+def grep (file, search, printy):
+    i=0
+    dayline = 0;
+    with open(file,'r') as f:
+        for line in f.readlines():
+            i+=1;
+            if search in line:
+                dayline=i;
+                if printy:
+                    print(line, end ='');
+        return dayline;
+        
 def drawCalender():
     cal=   "  __________________________________\n /"+calendar.month_name[now.month]
     for i in range (34-len(calendar.month_name[now.month])):cal+= " "
@@ -34,6 +46,7 @@ def drawCalender():
     cal+=" \\__________________________________/"
     os.system('cls' if os.name == 'nt' else 'clear')
     print(cal)
+
 drawCalender()
 
 def getDate():
@@ -42,27 +55,33 @@ def getDate():
         return int(date)
     else:
         if date=="" or date is None:
-            os.system("cls" if os.name =="nt" else "clear");
             drawCalender();
             return getDate();
+
+        if date.find("q")!=-1:
+            os.system("cls" if os.name =="nt" else "clear");
+            exit();   
+
         if date.find("e")==0: 
             if os.name!='nt':  
                 if date[1:].isdigit():
-                    #this verifiably doesn't work
-                    dayline = str(os.system('grep -n '+ str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+str(singleDate(date[0:1])+" ~/Documents/calendar.txt | cut -d ':' -f 1")))
-                    os.system("nvim +"+str(dayline)+" ~/Documents/calendar.txt")
+                    os.system("nvim +"+ grep("Documents/calendar.txt",str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+(str(singleDate(date))[0:]), False)+" ~/Documents/calendar.txt")
                     return int(date[1:])
-                else:getDate();
+                else:
+                    drawCalender();
+                    return getDate();
             else:
                 if date[1:].isdigit():
                     os.system("start notepad.exe '%userprofile%\\Documents\\calendar.txt'")
                     return int(date[1:])
-                else:getDate();
-        if date.find("q")!=-1:
-            os.system("cls" if os.name =="nt" else "clear");
-            exit();
-        else: return int(getDate());
-
+                else:
+                    drawCalender();
+                    return getDate();
+        else:
+            drawCalender();
+            return int(getDate());
+            
+    #I know this is super stupid
 def singleDate(num):
     if num<10:
         num=str(("{:02d}".format(num)))
@@ -80,9 +99,8 @@ def moveCursor(Intdate):
 while True:
     date=getDate()
     moveCursor(date)
-    os.system('grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+' %userprofile%\\Documents\\calendar.txt' if os.name=='nt' else
-              'grep '+(str(now).split("-")[0])+"-"+(str(now).split("-")[1])+"-"+str(singleDate(date))+ ' ~/Documents/calendar.txt')
-    
+    grep("Documents/calendar.txt", str(now).split("-")[0]+"-"+str(now).split("-")[1]+"-"+(str(singleDate(date))[0:]), True)
+
 #Get back highlighting for today
 #Add highlighting for days with @ tags
 #Add config/options
